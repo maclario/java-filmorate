@@ -54,7 +54,8 @@ public class UserController {
         int receivedId = updatedUser.getId();
         User oldUser = usersStorage.get(receivedId);
         if (oldUser == null) {
-            throw new UserNotFoundException("Пользователь с id " + receivedId + " не найден.");
+            throw new UserNotFoundException("Запрос на обновление пользователя. Получен id: +" + receivedId +
+                    ". Пользователь с данным id не найден.");
         }
         if (updatedUser.getName() == null || updatedUser.getName().isEmpty()) {
             updatedUser.setName(updatedUser.getLogin());

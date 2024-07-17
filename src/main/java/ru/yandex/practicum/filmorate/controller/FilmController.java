@@ -51,7 +51,8 @@ public class FilmController {
         int receivedId = updatedFilm.getId();
         Film oldFilm = filmsStorage.get(receivedId);
         if (oldFilm == null) {
-            throw new FilmNotFoundException("Фильм с id " + receivedId + " не найден.");
+            throw new FilmNotFoundException("Запрос на обновление фильма. Получен id: +" + receivedId +
+                    ". Фильм с данным id не найден.");
         }
         filmsStorage.put(receivedId, updatedFilm);
         log.debug("--> Step 2. Фильм обновлен.+" +
