@@ -131,7 +131,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void ShouldReturnNotFoundIfFilmsStorageNotContainsIdFromRequestBodyTest() throws Exception {
+    public void shouldReturnNotFoundIfFilmsStorageNotContainsIdFromRequestBodyTest() throws Exception {
         film.setId(1);
 
         mockMvc.perform(MockMvcRequestBuilders.put(urlTemplate)

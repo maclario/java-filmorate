@@ -27,13 +27,13 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getUsersList() {
-        log.debug("getAllUsers method. Возвращаем список всех пользователей.");
+        log.debug("getAllUsers. Возвращаем список всех пользователей.");
         return usersStorage.values();
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        log.debug("createUser method.");
+        log.debug("createUser");
         log.debug("--> Step 1. Получено RequestBody: {}", user);
         int newId = getNextId();
         user.setId(newId);
@@ -49,7 +49,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User updatedUser) {
-        log.debug("updateUser method.");
+        log.debug("updateUser");
         log.debug("--> Step 1. Получено RequestBody: {}", updatedUser);
         int receivedId = updatedUser.getId();
         User oldUser = usersStorage.get(receivedId);

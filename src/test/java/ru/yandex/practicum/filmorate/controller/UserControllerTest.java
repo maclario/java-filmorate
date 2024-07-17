@@ -165,7 +165,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void ShouldReturnNotFoundIfUsersStorageNotContainsIdFromRequestBodyTest() throws Exception {
+    public void shouldReturnNotFoundIfUsersStorageNotContainsIdFromRequestBodyTest() throws Exception {
         user.setId(3);
 
         mockMvc.perform(MockMvcRequestBuilders.put(urlTemplate)

@@ -27,13 +27,13 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        log.debug("getAllFilms method. Возвращаем список всех фильмов.");
+        log.debug("getAllFilms. Возвращаем список всех фильмов.");
         return filmsStorage.values();
     }
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        log.debug("createFilm method.");
+        log.debug("createFilm");
         log.debug("--> Step 1. Получено RequestBody: {}", film);
         int newId = getNextId();
         film.setId(newId);
@@ -46,7 +46,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film updatedFilm) {
-        log.debug("updateFilm method.");
+        log.debug("updateFilm");
         log.debug("--> Step 1. Получено RequestBody: {}", updatedFilm);
         int receivedId = updatedFilm.getId();
         Film oldFilm = filmsStorage.get(receivedId);
