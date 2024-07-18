@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping("/users")
 @Slf4j
@@ -32,6 +34,7 @@ public class UserController {
     }
 
     @PostMapping
+    @Validated(Marker.OnCreate.class)
     public User createUser(@Valid @RequestBody User user) {
         log.debug("createUser");
         log.debug("--> Step 1. Получено RequestBody: {}", user);
@@ -48,24 +51,26 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User updatedUser) {
+    @Validated(Marker.OnUpdate.class)
+    public User updateUser(@Valid @RequestBody User updUser) {
         log.debug("updateUser");
-        log.debug("--> Step 1. Получено RequestBody: {}", updatedUser);
-        int receivedId = updatedUser.getId();
+        log.debug("--> Step 1. Получено RequestBody: {}", updUser);
+        int receivedId = updUser.getId();
         User oldUser = usersStorage.get(receivedId);
         if (oldUser == null) {
-            throw new UserNotFoundException("Запрос на обновление пользователя. Получен id: +" + receivedId +
+            throw new NotFoundException("Запрос на обновление пользователя. Получен id: +" + receivedId +
                     ". Пользователь с данным id не найден.");
         }
-        if (updatedUser.getName() == null || updatedUser.getName().isEmpty()) {
-            updatedUser.setName(updatedUser.getLogin());
+        if (updUser.getName() == null || updUser.getName().isBlank()) {
+            updUser.setName(updUser.getLogin());
         }
-        usersStorage.put(receivedId, updatedUser);
+        usersStorage.put(receivedId, updUser);
         log.debug("--> Step 2. Пользователь обновлен.+" +
                 "\noldUser: {}+" +
-                "\nupdatedUser: {}", oldUser, updatedUser);
-        return updatedUser;
+                "\nupdatedUser: {}", oldUser, updUser);
+        return updUser;
     }
+
 }
 
 

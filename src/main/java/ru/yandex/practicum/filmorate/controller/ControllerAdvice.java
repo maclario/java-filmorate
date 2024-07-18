@@ -5,8 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.util.Map;
 
@@ -14,13 +13,7 @@ import java.util.Map;
 public class ControllerAdvice {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleFilmNotFound(FilmNotFoundException exception) {
-        return Map.of("NOT FOUND ERROR", exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleUserNotFound(UserNotFoundException exception) {
+    public Map<String, String> handleNotFound(NotFoundException exception) {
         return Map.of("NOT FOUND ERROR", exception.getMessage());
     }
 }
