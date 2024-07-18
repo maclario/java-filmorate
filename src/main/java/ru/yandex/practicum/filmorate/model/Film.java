@@ -10,7 +10,6 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
-    @Null(groups = Marker.OnCreate.class)
     @NotNull(groups = Marker.OnUpdate.class)
     private int id;
 

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -28,14 +29,14 @@ public class FilmController {
     }
 
     @GetMapping
-    public Collection<Film> getAllFilms() {
+    public ResponseEntity<Collection<Film>> getAllFilms() {
         log.debug("getAllFilms. Возвращаем список всех фильмов.");
-        return filmsStorage.values();
+        return ResponseEntity.ok(filmsStorage.values());
     }
 
     @PostMapping
-    @Validated(Marker.OnCreate.class)
-    public Film createFilm(@Valid @RequestBody Film film) {
+    @Validated({Marker.OnCreate.class})
+    public ResponseEntity<Film> createFilm(@Valid @RequestBody Film film) {
         log.debug("createFilm");
         log.debug("--> Step 1. Получено RequestBody: {}", film);
         int newId = getNextId();
@@ -44,12 +45,12 @@ public class FilmController {
         filmsStorage.put(newId, film);
         log.debug("--> Step 2. Новый пользователь сохранен. +" +
                 "Размер filmsStorage увеличился на [{}].", filmsStorage.size() - oldFilmsStorageSize);
-        return film;
+        return ResponseEntity.ok(film);
     }
 
     @PutMapping
-    @Validated(Marker.OnUpdate.class)
-    public Film updateFilm(@Valid @RequestBody Film updFilm) {
+    @Validated({Marker.OnUpdate.class})
+    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updFilm) {
         log.debug("updateFilm");
         log.debug("--> Step 1. Получено RequestBody: {}", updFilm);
         int receivedId = updFilm.getId();
@@ -62,7 +63,7 @@ public class FilmController {
         log.debug("--> Step 2. Фильм обновлен.+" +
                 "\noldFilm: {}" +
                 "\nupdatedFilm: {}", oldFilm, updFilm);
-        return updFilm;
+        return ResponseEntity.ok(updFilm);
     }
 
 }

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -28,14 +29,14 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> getUsersList() {
+    public ResponseEntity<Collection<User>> getUsersList() {
         log.debug("getAllUsers. Возвращаем список всех пользователей.");
-        return usersStorage.values();
+        return ResponseEntity.ok(usersStorage.values());
     }
 
     @PostMapping
-    @Validated(Marker.OnCreate.class)
-    public User createUser(@Valid @RequestBody User user) {
+    @Validated({Marker.OnCreate.class})
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         log.debug("createUser");
         log.debug("--> Step 1. Получено RequestBody: {}", user);
         int newId = getNextId();
@@ -47,12 +48,12 @@ public class UserController {
         usersStorage.put(newId, user);
         log.debug("--> Step 2. Новый пользователь сохранен. " +
                 "Размер usersStorage увеличился на [{}].", usersStorage.size() - oldUsersStorageSize);
-        return user;
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping
-    @Validated(Marker.OnUpdate.class)
-    public User updateUser(@Valid @RequestBody User updUser) {
+    @Validated({Marker.OnUpdate.class})
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User updUser) {
         log.debug("updateUser");
         log.debug("--> Step 1. Получено RequestBody: {}", updUser);
         int receivedId = updUser.getId();
@@ -68,7 +69,7 @@ public class UserController {
         log.debug("--> Step 2. Пользователь обновлен.+" +
                 "\noldUser: {}+" +
                 "\nupdatedUser: {}", oldUser, updUser);
-        return updUser;
+        return ResponseEntity.ok(updUser);
     }
 
 }
