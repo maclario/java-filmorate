@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -54,19 +55,19 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public ResponseEntity<String> addLike(@PathVariable int id, @PathVariable int userId) {
+    @ResponseStatus(HttpStatus.OK)
+    public void addLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Put запрос: Добавление лайка фильму. Получено в запросе: id = {}, userId = {}", id, userId);
         log.info("Вызван: filmService.addLike(int id, int userId)");
         filmService.addLike(id, userId);
-        return ResponseEntity.ok("Film (id: " + id + "), Like by user (id: " + userId + ") added");
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public ResponseEntity<String> removeLike(@PathVariable int id, @PathVariable int userId) {
+    @ResponseStatus(HttpStatus.OK)
+    public void removeLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Delete запрос: Удаление лайка фильму. Получено в запросе: id = {}, userId = {}", id, userId);
         log.info("Вызван: filmService.removeLike(int id, int userId)");
         filmService.removeLike(id, userId);
-        return ResponseEntity.ok("Film (id: " + id + "), Like by user (id: " + userId + ") removed");
     }
 
     @GetMapping("/popular")

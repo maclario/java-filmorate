@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,19 +48,19 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<String> addFriend(@PathVariable int id, @PathVariable int friendId) {
+    @ResponseStatus(HttpStatus.OK)
+    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Put запрос: Добавление в список друзей. Получено в запросе: id = {}, friendId = {}", id, friendId);
         log.info("Вызван: userService.addFriend(int id, int friendId)");
         userService.addFriend(id, friendId);
-        return ResponseEntity.ok("Friend added");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public ResponseEntity<String> removeFriend(@PathVariable int id, @PathVariable int friendId) {
+    @ResponseStatus(HttpStatus.OK)
+    public void removeFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("Delete запрос: Удаление из списка друзей. Получено в запросе: id = {}, friendId = {}", id, friendId);
         log.info("Вызван: userService.removeFriend(int id, int friendId)");
         userService.removeFriend(id, friendId);
-        return ResponseEntity.ok("Friend removed");
     }
 
     @GetMapping("/{id}/friends")
