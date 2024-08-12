@@ -33,7 +33,7 @@ public class User {
     private LocalDate birthday;
 
     @JsonIgnore
-    private Set<Integer> friendsIdentifiers;
+    private final Set<Integer> friendsIdentifiers;
 
     public User() {
         friendsIdentifiers = new HashSet<>();
