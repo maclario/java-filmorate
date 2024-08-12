@@ -10,7 +10,7 @@ public class ReleaseDateValidator implements ConstraintValidator<ReleaseDate, Lo
 
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-        return value.isAfter(MIN_RELEASE_DATE) || value.isEqual(MIN_RELEASE_DATE);
+        return !value.isBefore(MIN_RELEASE_DATE);
     }
 
     public static LocalDate getMinReleaseDate() {

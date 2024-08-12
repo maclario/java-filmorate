@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.controller.Marker;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -28,4 +31,12 @@ public class User {
     @Past(message = "Некорректная дата рождения: Дата рождения не может быть в будущем.")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
+    @JsonIgnore
+    private Set<Integer> friendsIdentifiers;
+
+    public User() {
+        friendsIdentifiers = new HashSet<>();
+    }
+
 }
