@@ -35,10 +35,6 @@ public class Film {
     private int duration;
 
     @JsonIgnore
-    private Set<Integer> userLikeIdentifiers;
-
-    public Film() {
-        this.userLikeIdentifiers = new HashSet<>();
-    }
+    private Set<Integer> userLikeIdentifiers = new HashSet<>();
 
 }
