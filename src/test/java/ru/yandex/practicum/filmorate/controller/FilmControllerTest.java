@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -11,12 +12,23 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.util.ReleaseDateValidator;
 
 import java.time.LocalDate;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class FilmControllerTest {
+    UserStorage userStorage;
+    FilmStorage filmStorage;
+    FilmController filmController;
+
     private MockMvc mockMvc;
     private ObjectMapper mapper;
     private Film film;
@@ -29,8 +41,11 @@ public class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
+        userStorage = new InMemoryUserStorage();
+        filmStorage = new InMemoryFilmStorage();
+        filmController = new FilmController(new FilmService(filmStorage, userStorage));
         this.mockMvc = MockMvcBuilders
-                .standaloneSetup(new FilmController())
+                .standaloneSetup(filmController)
                 .setControllerAdvice(new ControllerAdvice())
                 .build();
 
@@ -194,6 +209,143 @@ public class FilmControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[2].description").value(validDescription3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[2].releaseDate").value(validReleaseDate3String))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[2].duration").value(validDuration3));
+    }
+
+    @Test
+    public void addLikeTest() throws Exception {
+        String receivedFilm = mockMvc.perform(MockMvcRequestBuilders.post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        int filmId = mapper.readValue(receivedFilm, Film.class).getId();
+
+        User user1 = new User();
+        user1.setName("Valid Name");
+        user1.setEmail("valid@email.com");
+        user1.setLogin("ValidLogin");
+        user1.setBirthday(LocalDate.of(1990, 6, 10));
+        int userId = userStorage.createUser(user1).getId();
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + filmId + "/like/" + userId))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void removeLikeTest() throws Exception {
+        String receivedFilm = mockMvc.perform(MockMvcRequestBuilders.post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        int filmId = mapper.readValue(receivedFilm, Film.class).getId();
+
+        User user1 = new User();
+        user1.setName("Valid Name");
+        user1.setEmail("valid@email.com");
+        user1.setLogin("ValidLogin");
+        user1.setBirthday(LocalDate.of(1990, 6, 10));
+        int user1Id = userStorage.createUser(user1).getId();
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + filmId + "/like/" + user1Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/films/" + filmId + "/like/" + user1Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void getMostRatedFilmsWithCustomCountTest() throws Exception {
+        User user1 = new User();
+        user1.setName("Valid Name");
+        user1.setEmail("valid@email.com");
+        user1.setLogin("ValidLogin");
+        user1.setBirthday(LocalDate.of(1990, 6, 10));
+        int user1Id = userStorage.createUser(user1).getId();
+
+        User user2 = new User();
+        user2.setName("secValid Name");
+        user2.setEmail("secvalid@email.com");
+        user2.setLogin("secValidLogin");
+        user2.setBirthday(LocalDate.of(1991, 6, 10));
+        int user2Id = userStorage.createUser(user2).getId();
+
+        User user3 = new User();
+        user3.setName("thValid Name");
+        user3.setEmail("thvalid@email.com");
+        user3.setLogin("thValidLogin");
+        user3.setBirthday(LocalDate.of(1992, 6, 10));
+        int user3Id = userStorage.createUser(user3).getId();
+
+        String validName2 = "Тьма";
+        String validDescription2 = "История 4 семей, живущих в маленьком немецком городке";
+        LocalDate validReleaseDate2 = LocalDate.of(2017, 9,9);
+        int validDuration2 = 1300;
+
+        String validName3 = "Начало";
+        String validDescription3 = "Профессиональные воры внедряются в сон наследника корпорации.";
+        LocalDate validReleaseDate3 = LocalDate.of(2010, 7,8);
+        int validDuration3 = 148;
+
+        Film film2 = new Film();
+        film2.setName(validName2);
+        film2.setDescription(validDescription2);
+        film2.setReleaseDate(validReleaseDate2);
+        film2.setDuration(validDuration2);
+
+        Film film3 = new Film();
+        film3.setName(validName3);
+        film3.setDescription(validDescription3);
+        film3.setReleaseDate(validReleaseDate3);
+        film3.setDuration(validDuration3);
+
+        String receivedFilm1 = mockMvc.perform(MockMvcRequestBuilders.post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String receivedFilm2 = mockMvc.perform(MockMvcRequestBuilders.post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film2)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String receivedFilm3 = mockMvc.perform(MockMvcRequestBuilders.post(urlTemplate)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(film3)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        int film1Id = mapper.readValue(receivedFilm1, Film.class).getId();
+        int film2Id = mapper.readValue(receivedFilm2, Film.class).getId();
+        int film3Id = mapper.readValue(receivedFilm3, Film.class).getId();
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + film2Id + "/like/" + user1Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + film2Id + "/like/" + user2Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + film2Id + "/like/" + user3Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + film1Id + "/like/" + user1Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + film1Id + "/like/" + user2Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/films/" + film3Id + "/like/" + user2Id))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/popular?count=3"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].name").value(validName2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].name").value(validName))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].name").value(validName3));
     }
 
 }
